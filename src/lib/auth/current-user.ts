@@ -5,8 +5,8 @@ import { eq } from "drizzle-orm";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 
-import { db, categories, type CategoryTag, type IconDefinition, users } from "@/lib/db";
-import { buildColorIcon } from "@/lib/domain/icons";
+import { db, categories, type CategoryTag, users } from "@/lib/db";
+import { buildColorIcon, serializeIcon } from "@/lib/domain/icons";
 
 type SystemCategorySeed = {
   tag: CategoryTag;
@@ -78,7 +78,7 @@ export const syncCurrentUser = cache(async () => {
         systemCategorySeeds.map((seed, index) => ({
           userId,
           name: seed.name,
-          icon: buildColorIcon(seed.name, seed.color) satisfies IconDefinition,
+          icon: serializeIcon(buildColorIcon(seed.name, seed.color)),
           type: "system" as const,
           tag: seed.tag,
           includeInReports: false,
@@ -117,4 +117,3 @@ function asJson(value: Record<string, unknown> | null | undefined) {
 
   return value;
 }
-

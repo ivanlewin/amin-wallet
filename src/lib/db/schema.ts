@@ -6,25 +6,14 @@ import {
   foreignKey,
   jsonb,
   pgEnum,
+  pgPolicy,
   pgTable,
   smallint,
   text,
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
-
-export type ColorIcon = {
-  type: "color";
-  color: string;
-  name: string;
-};
-
-export type ResourceIcon = {
-  type: "resource";
-  resource: string;
-};
-
-export type IconDefinition = ColorIcon | ResourceIcon;
+import { IconDefinition } from "../domain/icons";
 
 export const categoryTypeEnum = pgEnum("category_type", ["income", "expense", "system"]);
 
@@ -40,40 +29,78 @@ export const categoryTagEnum = pgEnum("category_tag", [
   "withdraw",
 ]);
 
-export const users = pgTable("users", {
-  id: text("id").primaryKey(),
-  email: text("email").notNull(),
-  emails: text("emails").array().notNull().default(sql`ARRAY[]::text[]`),
-  firstName: text("first_name"),
-  lastName: text("last_name"),
-  imageUrl: text("image_url").notNull(),
-  phoneNumber: text("phone_number"),
-  phoneNumbers: text("phone_numbers").array(),
-  publicMetadata: jsonb("public_metadata").$type<Record<string, unknown> | null>(),
-  unsafeMetadata: jsonb("unsafe_metadata").$type<Record<string, unknown> | null>(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
-});
+const currentAppUserId = sql`current_setting('app.current_user_id', true)`;
+
+function ownsWallet(walletIdColumn: unknown) {
+  return sql`exists (
+    select 1
+    from "wallets"
+    where "wallets"."id" = ${walletIdColumn}
+      and "wallets"."user_id" = ${currentAppUserId}
+  )`;
+}
+
+function ownsTransferEndpoints(fromWalletIdColumn: unknown, toWalletIdColumn: unknown) {
+  return sql`${ownsWallet(fromWalletIdColumn)} and ${ownsWallet(toWalletIdColumn)}`;
+}
+
+export const users = pgTable(
+  "users",
+  {
+    id: text("id").primaryKey(),
+    email: text("email").notNull(),
+    emails: text("emails")
+      .array()
+      .notNull()
+      .default(sql`ARRAY[]::text[]`),
+    firstName: text("first_name"),
+    lastName: text("last_name"),
+    imageUrl: text("image_url").notNull(),
+    phoneNumber: text("phone_number"),
+    phoneNumbers: text("phone_numbers").array(),
+    publicMetadata: jsonb("public_metadata").$type<Record<string, unknown> | null>(),
+    unsafeMetadata: jsonb("unsafe_metadata").$type<Record<string, unknown> | null>(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    pgPolicy("users_current_user_all", {
+      for: "all",
+      using: sql`${table.id} = ${currentAppUserId}`,
+      withCheck: sql`${table.id} = ${currentAppUserId}`,
+    }),
+  ],
+).enableRLS();
 
 export const currencies = pgTable(
   "currencies",
   {
-    id: text("id").primaryKey().default(sql`new_id('curr')`),
+    id: text("id")
+      .primaryKey()
+      .default(sql`new_id('curr')`),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     lastUpdatedAt: timestamp("last_updated_at", { withTimezone: true }).notNull().defaultNow(),
     name: text("name").notNull(),
     code: text("code").notNull(),
     symbol: text("symbol").notNull(),
     decimals: smallint("decimals").notNull(),
-    isDeleted: boolean("is_deleted").notNull().default(false),
+    deleted: boolean("deleted").notNull().default(false),
   },
-  (table) => [uniqueIndex("currencies_code_unique").on(table.code)],
-);
+  (table) => [
+    uniqueIndex("currencies_code_unique").on(table.code),
+    pgPolicy("currencies_public_select", {
+      for: "select",
+      using: sql`true`,
+    }),
+  ],
+).enableRLS();
 
 export const wallets = pgTable(
   "wallets",
   {
-    id: text("id").primaryKey().default(sql`new_id('wllt')`),
+    id: text("id")
+      .primaryKey()
+      .default(sql`new_id('wllt')`),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     lastUpdatedAt: timestamp("last_updated_at", { withTimezone: true }).notNull().defaultNow(),
     userId: text("user_id")
@@ -84,22 +111,29 @@ export const wallets = pgTable(
     currencyId: text("currency_id")
       .notNull()
       .references(() => currencies.id, { onUpdate: "cascade", onDelete: "restrict" }),
-    initialBalance: bigint("initial_balance", { mode: "bigint" }).notNull().default(sql`0`),
+    initialBalance: bigint("initial_balance", { mode: "bigint" })
+      .notNull()
+      .default(sql`0`),
     countInTotal: boolean("count_in_total").notNull().default(true),
-    isArchived: boolean("is_archived").notNull().default(false),
-    isDeleted: boolean("is_deleted").notNull().default(false),
+    archived: boolean("archived").notNull().default(false),
     sortIndex: smallint("index").notNull().default(0),
   },
   (table) => [
     check("wallets_index_positive", sql`${table.sortIndex} >= 0`),
-    uniqueIndex("wallets_user_id_name_unique").on(table.userId, table.name),
+    pgPolicy("wallets_current_user_all", {
+      for: "all",
+      using: sql`${table.userId} = ${currentAppUserId}`,
+      withCheck: sql`${table.userId} = ${currentAppUserId}`,
+    }),
   ],
-);
+).enableRLS();
 
 export const categories = pgTable(
   "categories",
   {
-    id: text("id").primaryKey().default(sql`new_id('catg')`),
+    id: text("id")
+      .primaryKey()
+      .default(sql`new_id('catg')`),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     lastUpdatedAt: timestamp("last_updated_at", { withTimezone: true }).notNull().defaultNow(),
     userId: text("user_id")
@@ -111,7 +145,7 @@ export const categories = pgTable(
     tag: categoryTagEnum("tag"),
     includeInReports: boolean("include_in_reports").notNull().default(true),
     sortIndex: smallint("index").notNull().default(0),
-    isDeleted: boolean("is_deleted").notNull().default(false),
+    deleted: boolean("deleted").notNull().default(false),
     parentId: text("parent_id"),
   },
   (table) => [
@@ -124,13 +158,20 @@ export const categories = pgTable(
     })
       .onUpdate("cascade")
       .onDelete("restrict"),
+    pgPolicy("categories_current_user_all", {
+      for: "all",
+      using: sql`${table.userId} = ${currentAppUserId}`,
+      withCheck: sql`${table.userId} = ${currentAppUserId}`,
+    }),
   ],
-);
+).enableRLS();
 
 export const events = pgTable(
   "events",
   {
-    id: text("id").primaryKey().default(sql`new_id('evnt')`),
+    id: text("id")
+      .primaryKey()
+      .default(sql`new_id('evnt')`),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     lastUpdatedAt: timestamp("last_updated_at", { withTimezone: true }).notNull().defaultNow(),
     userId: text("user_id")
@@ -141,74 +182,118 @@ export const events = pgTable(
     note: text("note"),
     startAt: timestamp("start_at", { withTimezone: true }).notNull(),
     endAt: timestamp("end_at", { withTimezone: true }).notNull(),
-    isDeleted: boolean("is_deleted").notNull().default(false),
+    deleted: boolean("deleted").notNull().default(false),
   },
-  (table) => [check("events_range_valid", sql`${table.endAt} >= ${table.startAt}`)],
-);
+  (table) => [
+    pgPolicy("events_current_user_all", {
+      for: "all",
+      using: sql`${table.userId} = ${currentAppUserId}`,
+      withCheck: sql`${table.userId} = ${currentAppUserId}`,
+    }),
+  ],
+).enableRLS();
 
-export const debts = pgTable("debts", {
-  id: text("id").primaryKey().default(sql`new_id('debt')`),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  lastUpdatedAt: timestamp("last_updated_at", { withTimezone: true }).notNull().defaultNow(),
-  icon: jsonb("icon").$type<IconDefinition>().notNull(),
-  description: text("description"),
-  paidAt: timestamp("paid_at", { withTimezone: true }).notNull(),
-  walletId: text("wallet_id")
-    .notNull()
-    .references(() => wallets.id, { onUpdate: "cascade", onDelete: "restrict" }),
-  note: text("note"),
-  amount: bigint("amount", { mode: "bigint" }).notNull(),
-  isArchived: boolean("is_archived").notNull().default(false),
-  isDeleted: boolean("is_deleted").notNull().default(false),
-});
+export const debts = pgTable(
+  "debts",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`new_id('debt')`),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    lastUpdatedAt: timestamp("last_updated_at", { withTimezone: true }).notNull().defaultNow(),
+    icon: jsonb("icon").$type<IconDefinition>().notNull(),
+    description: text("description"),
+    paidAt: timestamp("paid_at", { withTimezone: true }).notNull(),
+    walletId: text("wallet_id")
+      .notNull()
+      .references(() => wallets.id, { onUpdate: "cascade", onDelete: "restrict" }),
+    note: text("note"),
+    amount: bigint("amount", { mode: "bigint" }).notNull(),
+    archived: boolean("archived").notNull().default(false),
+    deleted: boolean("deleted").notNull().default(false),
+  },
+  (table) => [
+    pgPolicy("debts_owned_wallet_all", {
+      for: "all",
+      using: ownsWallet(table.walletId),
+      withCheck: ownsWallet(table.walletId),
+    }),
+  ],
+).enableRLS();
 
-export const recurrentTransactions = pgTable("recurrent_transactions", {
-  id: text("id").primaryKey().default(sql`new_id('rctx')`),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  lastUpdatedAt: timestamp("last_updated_at", { withTimezone: true }).notNull().defaultNow(),
-  amount: bigint("amount", { mode: "bigint" }).notNull(),
-  description: text("description"),
-  categoryId: text("category_id")
-    .notNull()
-    .references(() => categories.id, { onUpdate: "cascade", onDelete: "restrict" }),
-  walletId: text("wallet_id")
-    .notNull()
-    .references(() => wallets.id, { onUpdate: "cascade", onDelete: "restrict" }),
-  note: text("note"),
-  isConfirmed: boolean("is_confirmed").notNull().default(true),
-  includeInTotal: boolean("include_in_total").notNull().default(true),
-  recurrenceStartAt: timestamp("recurrence_start_at", { withTimezone: true }).notNull(),
-  recurrenceEndAt: timestamp("recurrence_end_at", { withTimezone: true }),
-  recurrenceRules: text("recurrence_rules").array(),
-  recurrenceExdates: timestamp("recurrence_exdates", { withTimezone: true }).array(),
-  recurrenceRdates: timestamp("recurrence_rdates", { withTimezone: true }).array(),
-  lastOccurrenceAt: timestamp("last_occurrence_at", { withTimezone: true }),
-  nextOccurrenceAt: timestamp("next_occurrence_at", { withTimezone: true }),
-  isDeleted: boolean("is_deleted").notNull().default(false),
-});
+export const recurrentTransactions = pgTable(
+  "recurrent_transactions",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`new_id('rctx')`),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    lastUpdatedAt: timestamp("last_updated_at", { withTimezone: true }).notNull().defaultNow(),
+    amount: bigint("amount", { mode: "bigint" }).notNull(),
+    description: text("description"),
+    categoryId: text("category_id")
+      .notNull()
+      .references(() => categories.id, { onUpdate: "cascade", onDelete: "restrict" }),
+    walletId: text("wallet_id")
+      .notNull()
+      .references(() => wallets.id, { onUpdate: "cascade", onDelete: "restrict" }),
+    note: text("note"),
+    confirmed: boolean("confirmed").notNull().default(true),
+    includeInTotal: boolean("include_in_total").notNull().default(true),
+    recurrenceStartAt: timestamp("recurrence_start_at", { withTimezone: true }).notNull(),
+    recurrenceEndAt: timestamp("recurrence_end_at", { withTimezone: true }),
+    recurrenceRules: text("recurrence_rules").array(),
+    recurrenceExdates: timestamp("recurrence_exdates", { withTimezone: true }).array(),
+    recurrenceRdates: timestamp("recurrence_rdates", { withTimezone: true }).array(),
+    lastOccurrenceAt: timestamp("last_occurrence_at", { withTimezone: true }),
+    nextOccurrenceAt: timestamp("next_occurrence_at", { withTimezone: true }),
+    deleted: boolean("deleted").notNull().default(false),
+  },
+  (table) => [
+    pgPolicy("recurrent_transactions_owned_wallet_all", {
+      for: "all",
+      using: ownsWallet(table.walletId),
+      withCheck: ownsWallet(table.walletId),
+    }),
+  ],
+).enableRLS();
 
-export const transactionModels = pgTable("transaction_models", {
-  id: text("id").primaryKey().default(sql`new_id('txmd')`),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  lastUpdatedAt: timestamp("last_updated_at", { withTimezone: true }).notNull().defaultNow(),
-  amount: bigint("amount", { mode: "bigint" }),
-  description: text("description"),
-  categoryId: text("category_id")
-    .notNull()
-    .references(() => categories.id, { onUpdate: "cascade", onDelete: "restrict" }),
-  walletId: text("wallet_id")
-    .notNull()
-    .references(() => wallets.id, { onUpdate: "cascade", onDelete: "restrict" }),
-  note: text("note"),
-  isConfirmed: boolean("is_confirmed").notNull().default(true),
-  includeInTotal: boolean("include_in_total").notNull().default(true),
-  isDeleted: boolean("is_deleted").notNull().default(false),
-});
+export const transactionModels = pgTable(
+  "transaction_models",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`new_id('txmd')`),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    lastUpdatedAt: timestamp("last_updated_at", { withTimezone: true }).notNull().defaultNow(),
+    amount: bigint("amount", { mode: "bigint" }),
+    description: text("description"),
+    categoryId: text("category_id")
+      .notNull()
+      .references(() => categories.id, { onUpdate: "cascade", onDelete: "restrict" }),
+    walletId: text("wallet_id")
+      .notNull()
+      .references(() => wallets.id, { onUpdate: "cascade", onDelete: "restrict" }),
+    note: text("note"),
+    confirmed: boolean("confirmed").notNull().default(true),
+    includeInTotal: boolean("include_in_total").notNull().default(true),
+    deleted: boolean("deleted").notNull().default(false),
+  },
+  (table) => [
+    pgPolicy("transaction_models_owned_wallet_all", {
+      for: "all",
+      using: ownsWallet(table.walletId),
+      withCheck: ownsWallet(table.walletId),
+    }),
+  ],
+).enableRLS();
 
 export const transferModels = pgTable(
   "transfer_models",
   {
-    id: text("id").primaryKey().default(sql`new_id('tfmd')`),
+    id: text("id")
+      .primaryKey()
+      .default(sql`new_id('tfmd')`),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     lastUpdatedAt: timestamp("last_updated_at", { withTimezone: true }).notNull().defaultNow(),
     description: text("description"),
@@ -222,40 +307,60 @@ export const transferModels = pgTable(
     toAmount: bigint("to_amount", { mode: "bigint" }),
     feeAmount: bigint("fee_amount", { mode: "bigint" }),
     note: text("note"),
-    isConfirmed: boolean("is_confirmed").notNull().default(true),
+    confirmed: boolean("confirmed").notNull().default(true),
     includeInTotal: boolean("include_in_total").notNull().default(true),
-    isDeleted: boolean("is_deleted").notNull().default(false),
+    deleted: boolean("deleted").notNull().default(false),
   },
-  (table) => [check("transfer_models_wallets_distinct", sql`${table.fromWalletId} <> ${table.toWalletId}`)],
-);
+  (table) => [
+    pgPolicy("transfer_models_owned_wallets_all", {
+      for: "all",
+      using: ownsTransferEndpoints(table.fromWalletId, table.toWalletId),
+      withCheck: ownsTransferEndpoints(table.fromWalletId, table.toWalletId),
+    }),
+  ],
+).enableRLS();
 
-export const transactions = pgTable("transactions", {
-  id: text("id").primaryKey().default(sql`new_id('tnsx')`),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  lastUpdatedAt: timestamp("last_updated_at", { withTimezone: true }).notNull().defaultNow(),
-  amount: bigint("amount", { mode: "bigint" }).notNull(),
-  date: timestamp("date", { withTimezone: true }).notNull().defaultNow(),
-  description: text("description"),
-  categoryId: text("category_id")
-    .notNull()
-    .references(() => categories.id, { onUpdate: "cascade", onDelete: "restrict" }),
-  walletId: text("wallet_id")
-    .notNull()
-    .references(() => wallets.id, { onUpdate: "cascade", onDelete: "restrict" }),
-  note: text("note"),
-  isConfirmed: boolean("is_confirmed").notNull().default(true),
-  includeInTotal: boolean("include_in_total").notNull().default(true),
-  isDeleted: boolean("is_deleted").notNull().default(false),
-  createdFromModelId: text("created_from_model_id").references(() => transactionModels.id, {
-    onUpdate: "cascade",
-    onDelete: "restrict",
-  }),
-});
+export const transactions = pgTable(
+  "transactions",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`new_id('tnsx')`),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    lastUpdatedAt: timestamp("last_updated_at", { withTimezone: true }).notNull().defaultNow(),
+    amount: bigint("amount", { mode: "bigint" }).notNull(),
+    date: timestamp("date", { withTimezone: true }).notNull().defaultNow(),
+    description: text("description"),
+    categoryId: text("category_id")
+      .notNull()
+      .references(() => categories.id, { onUpdate: "cascade", onDelete: "restrict" }),
+    walletId: text("wallet_id")
+      .notNull()
+      .references(() => wallets.id, { onUpdate: "cascade", onDelete: "restrict" }),
+    note: text("note"),
+    confirmed: boolean("confirmed").notNull().default(true),
+    includeInTotal: boolean("include_in_total").notNull().default(true),
+    deleted: boolean("deleted").notNull().default(false),
+    createdFromModelId: text("created_from_model_id").references(() => transactionModels.id, {
+      onUpdate: "cascade",
+      onDelete: "restrict",
+    }),
+  },
+  (table) => [
+    pgPolicy("transactions_owned_wallet_all", {
+      for: "all",
+      using: ownsWallet(table.walletId),
+      withCheck: ownsWallet(table.walletId),
+    }),
+  ],
+).enableRLS();
 
 export const transfers = pgTable(
   "transfers",
   {
-    id: text("id").primaryKey().default(sql`new_id('tnsf')`),
+    id: text("id")
+      .primaryKey()
+      .default(sql`new_id('tnsf')`),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     lastUpdatedAt: timestamp("last_updated_at", { withTimezone: true }).notNull().defaultNow(),
     description: text("description"),
@@ -266,20 +371,23 @@ export const transfers = pgTable(
     toWalletId: text("to_wallet_id")
       .notNull()
       .references(() => wallets.id, { onUpdate: "cascade", onDelete: "restrict" }),
-    fromAmount: bigint("from_amount", { mode: "bigint" }).notNull(),
-    toAmount: bigint("to_amount", { mode: "bigint" }).notNull(),
-    feeAmount: bigint("fee_amount", { mode: "bigint" }).notNull().default(sql`0`),
     note: text("note"),
-    isConfirmed: boolean("is_confirmed").notNull().default(true),
+    confirmed: boolean("confirmed").notNull().default(true),
     includeInTotal: boolean("include_in_total").notNull().default(true),
-    isDeleted: boolean("is_deleted").notNull().default(false),
+    deleted: boolean("deleted").notNull().default(false),
     createdFromModelId: text("created_from_model_id").references(() => transferModels.id, {
       onUpdate: "cascade",
       onDelete: "restrict",
     }),
   },
-  (table) => [check("transfers_wallets_distinct", sql`${table.fromWalletId} <> ${table.toWalletId}`)],
-);
+  (table) => [
+    pgPolicy("transfers_owned_wallets_all", {
+      for: "all",
+      using: ownsTransferEndpoints(table.fromWalletId, table.toWalletId),
+      withCheck: ownsTransferEndpoints(table.fromWalletId, table.toWalletId),
+    }),
+  ],
+).enableRLS();
 
 export const usersRelations = relations(users, ({ many }) => ({
   wallets: many(wallets),
