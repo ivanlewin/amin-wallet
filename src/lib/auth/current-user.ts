@@ -2,10 +2,9 @@ import "server-only";
 
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
-import { cache } from "react";
 import { redirect } from "next/navigation";
 
-import { db, categories, type CategoryTag, users } from "@/lib/db";
+import { categories, type CategoryTag, db, users } from "@/lib/db";
 import { buildColorIcon, serializeIcon } from "@/lib/domain/icons";
 
 type SystemCategorySeed = {
@@ -26,7 +25,7 @@ const systemCategorySeeds: SystemCategorySeed[] = [
   { tag: "withdraw", name: "Withdrawal", color: "#1d4ed8" },
 ];
 
-export const requireCurrentUserId = cache(async () => {
+export const requireCurrentUserId = async () => {
   const { userId } = await auth();
 
   if (!userId) {
@@ -34,9 +33,9 @@ export const requireCurrentUserId = cache(async () => {
   }
 
   return userId;
-});
+};
 
-export const syncCurrentUser = cache(async () => {
+export const syncCurrentUser = async () => {
   const userId = await requireCurrentUserId();
   const client = await clerkClient();
   const clerkUser = await client.users.getUser(userId);
@@ -91,16 +90,16 @@ export const syncCurrentUser = cache(async () => {
 
     return savedUser;
   });
-});
+};
 
-export const getCurrentUserRecord = cache(async () => {
+export const getCurrentUserRecord = async () => {
   const userId = await requireCurrentUserId();
   const existingUser = await db.query.users.findFirst({
     where: eq(users.id, userId),
   });
 
   return existingUser ?? syncCurrentUser();
-});
+};
 
 function toDate(value: Date | number | null | undefined): Date {
   if (value instanceof Date) {
