@@ -1,6 +1,6 @@
 {
-  "id": "78b76380-c074-42a5-b017-8d0ab0c7c1a7",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "f5d69a32-cb50-40f5-a29b-c3598d36e9b4",
+  "prevId": "78b76380-c074-42a5-b017-8d0ab0c7c1a7",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -75,8 +75,8 @@
           "notNull": true,
           "default": 0
         },
-        "is_deleted": {
-          "name": "is_deleted",
+        "deleted": {
+          "name": "deleted",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -117,8 +117,12 @@
           "name": "categories_user_id_users_id_fk",
           "tableFrom": "categories",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -126,8 +130,12 @@
           "name": "categories_parent_id_fkey",
           "tableFrom": "categories",
           "tableTo": "categories",
-          "columnsFrom": ["parent_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -192,8 +200,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "is_deleted": {
-          "name": "is_deleted",
+        "deleted": {
+          "name": "deleted",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -285,15 +293,15 @@
           "primaryKey": false,
           "notNull": true
         },
-        "is_archived": {
-          "name": "is_archived",
+        "archived": {
+          "name": "archived",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
           "default": false
         },
-        "is_deleted": {
-          "name": "is_deleted",
+        "deleted": {
+          "name": "deleted",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -306,8 +314,12 @@
           "name": "debts_wallet_id_wallets_id_fk",
           "tableFrom": "debts",
           "tableTo": "wallets",
-          "columnsFrom": ["wallet_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "wallet_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -379,8 +391,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "is_deleted": {
-          "name": "is_deleted",
+        "deleted": {
+          "name": "deleted",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -393,8 +405,12 @@
           "name": "events_user_id_users_id_fk",
           "tableFrom": "events",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -402,12 +418,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {
-        "events_range_valid": {
-          "name": "events_range_valid",
-          "value": "\"events\".\"end_at\" >= \"events\".\"start_at\""
-        }
-      },
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.recurrent_transactions": {
@@ -465,8 +476,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "is_confirmed": {
-          "name": "is_confirmed",
+        "confirmed": {
+          "name": "confirmed",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -521,8 +532,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "is_deleted": {
-          "name": "is_deleted",
+        "deleted": {
+          "name": "deleted",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -535,8 +546,12 @@
           "name": "recurrent_transactions_category_id_categories_id_fk",
           "tableFrom": "recurrent_transactions",
           "tableTo": "categories",
-          "columnsFrom": ["category_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "category_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -544,8 +559,12 @@
           "name": "recurrent_transactions_wallet_id_wallets_id_fk",
           "tableFrom": "recurrent_transactions",
           "tableTo": "wallets",
-          "columnsFrom": ["wallet_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "wallet_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -611,8 +630,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "is_confirmed": {
-          "name": "is_confirmed",
+        "confirmed": {
+          "name": "confirmed",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -625,8 +644,8 @@
           "notNull": true,
           "default": true
         },
-        "is_deleted": {
-          "name": "is_deleted",
+        "deleted": {
+          "name": "deleted",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -639,8 +658,12 @@
           "name": "transaction_models_category_id_categories_id_fk",
           "tableFrom": "transaction_models",
           "tableTo": "categories",
-          "columnsFrom": ["category_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "category_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -648,8 +671,12 @@
           "name": "transaction_models_wallet_id_wallets_id_fk",
           "tableFrom": "transaction_models",
           "tableTo": "wallets",
-          "columnsFrom": ["wallet_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "wallet_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -722,8 +749,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "is_confirmed": {
-          "name": "is_confirmed",
+        "confirmed": {
+          "name": "confirmed",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -736,8 +763,8 @@
           "notNull": true,
           "default": true
         },
-        "is_deleted": {
-          "name": "is_deleted",
+        "deleted": {
+          "name": "deleted",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -756,8 +783,12 @@
           "name": "transactions_category_id_categories_id_fk",
           "tableFrom": "transactions",
           "tableTo": "categories",
-          "columnsFrom": ["category_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "category_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -765,8 +796,12 @@
           "name": "transactions_wallet_id_wallets_id_fk",
           "tableFrom": "transactions",
           "tableTo": "wallets",
-          "columnsFrom": ["wallet_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "wallet_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -774,8 +809,12 @@
           "name": "transactions_created_from_model_id_transaction_models_id_fk",
           "tableFrom": "transactions",
           "tableTo": "transaction_models",
-          "columnsFrom": ["created_from_model_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_from_model_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -853,8 +892,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "is_confirmed": {
-          "name": "is_confirmed",
+        "confirmed": {
+          "name": "confirmed",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -867,8 +906,8 @@
           "notNull": true,
           "default": true
         },
-        "is_deleted": {
-          "name": "is_deleted",
+        "deleted": {
+          "name": "deleted",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -881,8 +920,12 @@
           "name": "transfer_models_from_wallet_id_wallets_id_fk",
           "tableFrom": "transfer_models",
           "tableTo": "wallets",
-          "columnsFrom": ["from_wallet_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "from_wallet_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -890,8 +933,12 @@
           "name": "transfer_models_to_wallet_id_wallets_id_fk",
           "tableFrom": "transfer_models",
           "tableTo": "wallets",
-          "columnsFrom": ["to_wallet_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "to_wallet_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -899,12 +946,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {
-        "transfer_models_wallets_distinct": {
-          "name": "transfer_models_wallets_distinct",
-          "value": "\"transfer_models\".\"from_wallet_id\" <> \"transfer_models\".\"to_wallet_id\""
-        }
-      },
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.transfers": {
@@ -957,33 +999,14 @@
           "primaryKey": false,
           "notNull": true
         },
-        "from_amount": {
-          "name": "from_amount",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "to_amount": {
-          "name": "to_amount",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "fee_amount": {
-          "name": "fee_amount",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "0"
-        },
         "note": {
           "name": "note",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "is_confirmed": {
-          "name": "is_confirmed",
+        "confirmed": {
+          "name": "confirmed",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -996,8 +1019,8 @@
           "notNull": true,
           "default": true
         },
-        "is_deleted": {
-          "name": "is_deleted",
+        "deleted": {
+          "name": "deleted",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -1016,8 +1039,12 @@
           "name": "transfers_from_wallet_id_wallets_id_fk",
           "tableFrom": "transfers",
           "tableTo": "wallets",
-          "columnsFrom": ["from_wallet_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "from_wallet_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -1025,8 +1052,12 @@
           "name": "transfers_to_wallet_id_wallets_id_fk",
           "tableFrom": "transfers",
           "tableTo": "wallets",
-          "columnsFrom": ["to_wallet_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "to_wallet_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -1034,8 +1065,12 @@
           "name": "transfers_created_from_model_id_transfer_models_id_fk",
           "tableFrom": "transfers",
           "tableTo": "transfer_models",
-          "columnsFrom": ["created_from_model_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_from_model_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -1043,12 +1078,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {
-        "transfers_wallets_distinct": {
-          "name": "transfers_wallets_distinct",
-          "value": "\"transfers\".\"from_wallet_id\" <> \"transfers\".\"to_wallet_id\""
-        }
-      },
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.users": {
@@ -1200,15 +1230,8 @@
           "notNull": true,
           "default": true
         },
-        "is_archived": {
-          "name": "is_archived",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "is_deleted": {
-          "name": "is_deleted",
+        "archived": {
+          "name": "archived",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -1222,36 +1245,18 @@
           "default": 0
         }
       },
-      "indexes": {
-        "wallets_user_id_name_unique": {
-          "name": "wallets_user_id_name_unique",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "name",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "wallets_user_id_users_id_fk": {
           "name": "wallets_user_id_users_id_fk",
           "tableFrom": "wallets",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -1259,8 +1264,12 @@
           "name": "wallets_currency_id_currencies_id_fk",
           "tableFrom": "wallets",
           "tableTo": "currencies",
-          "columnsFrom": ["currency_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "currency_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -1296,7 +1305,11 @@
     "public.category_type": {
       "name": "category_type",
       "schema": "public",
-      "values": ["income", "expense", "system"]
+      "values": [
+        "income",
+        "expense",
+        "system"
+      ]
     }
   },
   "schemas": {},

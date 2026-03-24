@@ -6,7 +6,28 @@
       "idx": 0,
       "version": "7",
       "when": 1774110022767,
-      "tag": "0000_blue_venom",
+      "tag": "0000_project_setup",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1774394374121,
+      "tag": "0001_even_mongu",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774395364241,
+      "tag": "0002_add_row_level_security",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1774396184204,
+      "tag": "0003_perpetual_warlock",
       "breakpoints": true
     }
   ]
