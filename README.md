@@ -1,36 +1,119 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Amin Wallet
 
-## Getting Started
+Personal wallet app built on the Next.js App Router, Clerk authentication, Drizzle ORM, and PlanetScale Postgres.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 App Router with server components by default
+- Clerk for authentication
+- Drizzle ORM + Drizzle Kit for schema and migrations
+- PlanetScale Postgres for production and development branches
+- Vercel for hosting
+
+## Environment
+Required variables:
+
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- `CLERK_SECRET_KEY`
+- `DATABASE_URL`
+- `DATABASE_URL_DIRECT`
+
+Use `DATABASE_URL` for runtime app traffic through PlanetScale PgBouncer.
+
+Use `DATABASE_URL_DIRECT` for migrations and DDL against the direct Postgres connection.
+
+## PlanetScale Branch Model
+
+- Production database: `ivanlewin/amin-wallet` branch `main`
+- Development database: `ivanlewin/amin-wallet` branch `dev`
+- Vercel Production env -> `main`
+- Vercel Preview env -> `dev`
+- Local development env -> `dev`
+
+Create the development branch before the first migration:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pscale auth login
+pscale branch create amin-wallet dev --org ivanlewin --from main --wait
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Local Workflow
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Install dependencies:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm install
+```
 
-## Learn More
+Run the app:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open [http://localhost:3100](http://localhost:3100).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Database Workflow
 
-## Deploy on Vercel
+Generate SQL from the Drizzle schema:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm db:generate
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Check that schema snapshots and migrations are aligned:
+
+```bash
+pnpm db:check
+```
+
+Apply migrations to the database pointed to by `DATABASE_URL_DIRECT`:
+
+```bash
+pnpm db:migrate
+```
+
+Open Drizzle Studio:
+
+```bash
+pnpm db:studio
+```
+
+Important:
+
+- Do not use `drizzle-kit push` against shared or production branches.
+- Do not run migrations automatically from page renders or request handlers.
+- Apply migrations intentionally against `dev`, validate there, then promote the same migration set to `main`.
+
+## Current App Shape
+
+- `/` is a public landing page.
+- `/sign-in` and `/sign-up` are Clerk-powered auth routes.
+- `/dashboard` is the protected server-rendered app shell.
+
+The database includes the MoneyWallet-inspired core model:
+
+- `users`
+- `currencies`
+- `wallets`
+- `categories`
+- `events`
+- `debts`
+- `recurrent_transactions`
+- `transaction_models`
+- `transactions`
+- `transfer_models`
+- `transfers`
+
+## Verification
+
+The current foundation has been verified with:
+
+```bash
+pnpm db:generate
+pnpm db:check
+pnpm typecheck
+pnpm lint
+pnpm build
+```
+

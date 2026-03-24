@@ -2,10 +2,15 @@
   "name": "amin-wallet",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.22.0",
   "scripts": {
     "dev": "next dev --port=3100",
     "build": "next build",
     "start": "next start",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:check": "drizzle-kit check",
+    "db:studio": "drizzle-kit studio",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
@@ -13,7 +18,9 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^7.0.6",
+    "drizzle-orm": "^0.45.1",
     "next": "16.2.1",
+    "postgres": "^3.4.8",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
@@ -22,8 +29,10 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.10",
     "oxfmt": "^0.41.0",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }
