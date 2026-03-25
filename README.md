@@ -101,6 +101,14 @@ psql "service=amin_wallet_dev" -c "select current_database(), current_user;"
 
 That helper manages the dedicated Amin Wallet data directory at `/opt/homebrew/var/postgresql@18-amin-wallet`.
 
+Reset the local cluster back to an empty state:
+
+```bash
+pnpm db:local:reset
+pnpm db:migrate
+pnpm db:status
+```
+
 For this machine, local development uses:
 
 ```bash
