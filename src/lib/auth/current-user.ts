@@ -1,11 +1,10 @@
 import "server-only";
 
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 
 import { categories, type CategoryTag, db, users } from "@/lib/db";
-import { buildColorIcon, serializeIcon } from "@/lib/domain/icons";
+import { buildColorIcon, IconDefinition } from "@/lib/domain/icons";
 
 type SystemCategorySeed = {
   tag: CategoryTag;
@@ -77,7 +76,7 @@ export const syncCurrentUser = async () => {
         systemCategorySeeds.map((seed, index) => ({
           userId,
           name: seed.name,
-          icon: serializeIcon(buildColorIcon(seed.name, seed.color)),
+          icon: buildColorIcon(seed.name, seed.color) satisfies IconDefinition,
           type: "system" as const,
           tag: seed.tag,
           includeInReports: false,
@@ -90,15 +89,6 @@ export const syncCurrentUser = async () => {
 
     return savedUser;
   });
-};
-
-export const getCurrentUserRecord = async () => {
-  const userId = await requireCurrentUserId();
-  const existingUser = await db.query.users.findFirst({
-    where: eq(users.id, userId),
-  });
-
-  return existingUser ?? syncCurrentUser();
 };
 
 function toDate(value: Date | number | null | undefined): Date {
