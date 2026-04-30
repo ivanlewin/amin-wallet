@@ -2,9 +2,12 @@ import "server-only";
 
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 
-import { categories, type CategoryTag, db, users } from "@/lib/db";
+import { categories, type CategoryTag, users } from "@/lib/db";
+import { withDatabaseUser } from "@/lib/db/with-user";
 import { buildColorIcon, IconDefinition } from "@/lib/domain/icons";
+import { eq } from "drizzle-orm";
 
 type SystemCategorySeed = {
   tag: CategoryTag;
@@ -24,7 +27,7 @@ const systemCategorySeeds: SystemCategorySeed[] = [
   { tag: "withdraw", name: "Withdrawal", color: "#1d4ed8" },
 ];
 
-export const requireCurrentUserId = async () => {
+export const requireCurrentUserId = cache(async () => {
   const { userId } = await auth();
 
   if (!userId) {
@@ -32,9 +35,9 @@ export const requireCurrentUserId = async () => {
   }
 
   return userId;
-};
+});
 
-export const syncCurrentUser = async () => {
+export const syncCurrentUser = cache(async () => {
   const userId = await requireCurrentUserId();
   const client = await clerkClient();
   const clerkUser = await client.users.getUser(userId);
@@ -60,7 +63,7 @@ export const syncCurrentUser = async () => {
     updatedAt: toDate(clerkUser.updatedAt),
   };
 
-  return db.transaction(async (tx) => {
+  return withDatabaseUser(userId, async (tx) => {
     const [savedUser] = await tx
       .insert(users)
       .values(userRecord)
@@ -89,7 +92,18 @@ export const syncCurrentUser = async () => {
 
     return savedUser;
   });
-};
+});
+
+export const getCurrentUserRecord = cache(async () => {
+  const userId = await requireCurrentUserId();
+  const existingUser = await withDatabaseUser(userId, async (tx) => {
+    const [user] = await tx.select().from(users).where(eq(users.id, userId)).limit(1);
+
+    return user ?? null;
+  });
+
+  return existingUser ?? syncCurrentUser();
+});
 
 function toDate(value: Date | number | null | undefined): Date {
   if (value instanceof Date) {

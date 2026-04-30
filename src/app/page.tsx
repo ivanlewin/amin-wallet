@@ -1,9 +1,7 @@
-import { Suspense } from "react";
-
-export default async function Home() {
+export default function Home() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <main>index</main>
-    </Suspense>
+    <main className="flex min-h-screen items-center justify-center bg-background px-6 py-12">
+      <p className="text-lg font-medium tracking-tight text-foreground">amin wallet</p>
+    </main>
   );
 }

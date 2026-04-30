@@ -17,6 +17,7 @@ psql_bin="${brew_prefix}/opt/postgresql@${pg_version}/bin/psql"
 data_dir="${PG_LOCAL_DATA_DIR:-${brew_prefix}/var/postgresql@${pg_version}-amin-wallet}"
 log_file="${PG_LOCAL_LOG_FILE:-${brew_prefix}/var/log/postgresql@${pg_version}-amin-wallet.log}"
 port="${PG_LOCAL_PORT:-54342}"
+cluster_superuser="${PG_LOCAL_SUPERUSER:-${USER:-$(id -un)}}"
 
 if [[ ! -x "${pg_ctl}" || ! -x "${initdb}" || ! -x "${psql_bin}" ]]; then
   echo "Could not find the PostgreSQL ${pg_version} Homebrew binaries." >&2
@@ -27,17 +28,26 @@ ensure_log_dir() {
   mkdir -p "$(dirname "${log_file}")"
 }
 
+ensure_data_parent() {
+  mkdir -p "$(dirname "${data_dir}")"
+}
+
 cluster_running() {
   "${pg_ctl}" -D "${data_dir}" status >/dev/null 2>&1
 }
 
 ensure_postgres_role() {
-  "${psql_bin}" -h 127.0.0.1 -p "${port}" -U "${USER}" -d postgres -v ON_ERROR_STOP=1 -c \
+  "${psql_bin}" -h 127.0.0.1 -p "${port}" -U "${cluster_superuser}" -d postgres -v ON_ERROR_STOP=1 -c \
     "do \$\$ begin if not exists (select 1 from pg_roles where rolname = 'postgres') then create role postgres with login superuser password 'postgres'; end if; end \$\$;" \
     >/dev/null
 }
 
 start_cluster() {
+  if [[ ! -d "${data_dir}" ]]; then
+    echo "Data directory ${data_dir} does not exist yet. Run 'pnpm db:local:reset' first." >&2
+    exit 1
+  fi
+
   ensure_log_dir
   exec "${pg_ctl}" -D "${data_dir}" -l "${log_file}" -o "-p ${port}" start
 }
@@ -56,6 +66,7 @@ reset_cluster() {
   fi
 
   rm -rf "${data_dir}"
+  ensure_data_parent
   ensure_log_dir
   "${initdb}" -D "${data_dir}" --auth=trust >/dev/null
   "${pg_ctl}" -D "${data_dir}" -l "${log_file}" -o "-p ${port}" start >/dev/null

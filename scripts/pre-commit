@@ -1,0 +1,46 @@
+#!/bin/sh
+
+echo "✅ - Running formatter and linter..."
+
+staged_files="$(git diff --cached --name-only --diff-filter=ACMR)"
+lint_files=""
+
+if [ -n "$staged_files" ]; then
+    set --
+    while IFS= read -r file; do
+        set -- "$@" "$file"
+        case "$file" in
+            *.js|*.jsx|*.ts|*.tsx|*.mjs|*.cjs|*.mts|*.cts)
+                lint_files="$lint_files
+$file"
+                ;;
+        esac
+    done <<EOF
+$staged_files
+EOF
+    if ! pnpm exec oxfmt --no-error-on-unmatched-pattern "$@"; then
+        echo "Formatting/linting failed. Commit aborted."
+        exit 1
+    fi
+
+    if [ -n "$lint_files" ]; then
+        set --
+        while IFS= read -r file; do
+            if [ -n "$file" ]; then
+                set -- "$@" "$file"
+            fi
+        done <<EOF
+$lint_files
+EOF
+        if ! pnpm lint:fix "$@"; then
+            echo "Formatting/linting failed. Commit aborted."
+            exit 1
+        fi
+    else
+        echo "No staged files to lint."
+    fi
+else
+    echo "No staged files to format/lint."
+fi
+
+exit 0

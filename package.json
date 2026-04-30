@@ -9,13 +9,19 @@
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
+    "postinstall": "bash scripts/postinstall.sh",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:check": "drizzle-kit check",
     "db:push": "drizzle-kit push",
     "db:introspect": "drizzle-kit introspect",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:local:start": "bash ./scripts/db/local-postgres.sh start",
+    "db:local:stop": "bash ./scripts/db/local-postgres.sh stop",
+    "db:local:status": "bash ./scripts/db/local-postgres.sh status",
+    "db:local:reset": "bash ./scripts/db/local-postgres.sh reset",
+    "db:local:replay": "pnpm db:local:reset && pnpm db:migrate"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.0.6",

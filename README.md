@@ -106,7 +106,12 @@ Reset the local cluster back to an empty state:
 ```bash
 pnpm db:local:reset
 pnpm db:migrate
-pnpm db:status
+```
+
+Or do the full wipe-and-replay check in one command:
+
+```bash
+pnpm db:local:replay
 ```
 
 For this machine, local development uses:

@@ -26,3 +26,14 @@ export function formatMinorUnits(amount: bigint, code: string, decimals: number)
 
   return `${negative ? "-" : ""}${code} ${whole.toString()}${formattedFraction}`;
 }
+
+export function formatMinorUnitsForInput(amount: bigint, decimals: number): string {
+  const negative = amount < 0n;
+  const absolute = negative ? -amount : amount;
+  const base = 10n ** BigInt(decimals);
+  const whole = absolute / base;
+  const fraction = absolute % base;
+  const formattedFraction = decimals === 0 ? "" : `.${fraction.toString().padStart(decimals, "0")}`;
+
+  return `${negative ? "-" : ""}${whole.toString()}${formattedFraction}`;
+}

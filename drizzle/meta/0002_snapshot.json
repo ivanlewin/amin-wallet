@@ -117,12 +117,8 @@
           "name": "categories_user_id_users_id_fk",
           "tableFrom": "categories",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -130,12 +126,8 @@
           "name": "categories_parent_id_fkey",
           "tableFrom": "categories",
           "tableTo": "categories",
-          "columnsFrom": [
-            "parent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -147,9 +139,7 @@
           "name": "categories_current_user_all",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "\"categories\".\"user_id\" = current_setting('app.current_user_id', true)",
           "withCheck": "\"categories\".\"user_id\" = current_setting('app.current_user_id', true)"
         }
@@ -244,9 +234,7 @@
           "name": "currencies_public_select",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "true"
         }
       },
@@ -335,12 +323,8 @@
           "name": "debts_wallet_id_wallets_id_fk",
           "tableFrom": "debts",
           "tableTo": "wallets",
-          "columnsFrom": [
-            "wallet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["wallet_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -352,9 +336,7 @@
           "name": "debts_owned_wallet_all",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "exists (\n    select 1\n    from \"wallets\"\n    where \"wallets\".\"id\" = \"debts\".\"wallet_id\"\n      and \"wallets\".\"user_id\" = current_setting('app.current_user_id', true)\n  )",
           "withCheck": "exists (\n    select 1\n    from \"wallets\"\n    where \"wallets\".\"id\" = \"debts\".\"wallet_id\"\n      and \"wallets\".\"user_id\" = current_setting('app.current_user_id', true)\n  )"
         }
@@ -437,12 +419,8 @@
           "name": "events_user_id_users_id_fk",
           "tableFrom": "events",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -454,9 +432,7 @@
           "name": "events_current_user_all",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "\"events\".\"user_id\" = current_setting('app.current_user_id', true)",
           "withCheck": "\"events\".\"user_id\" = current_setting('app.current_user_id', true)"
         }
@@ -589,12 +565,8 @@
           "name": "recurrent_transactions_category_id_categories_id_fk",
           "tableFrom": "recurrent_transactions",
           "tableTo": "categories",
-          "columnsFrom": [
-            "category_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["category_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -602,12 +574,8 @@
           "name": "recurrent_transactions_wallet_id_wallets_id_fk",
           "tableFrom": "recurrent_transactions",
           "tableTo": "wallets",
-          "columnsFrom": [
-            "wallet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["wallet_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -619,9 +587,7 @@
           "name": "recurrent_transactions_owned_wallet_all",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "exists (\n    select 1\n    from \"wallets\"\n    where \"wallets\".\"id\" = \"recurrent_transactions\".\"wallet_id\"\n      and \"wallets\".\"user_id\" = current_setting('app.current_user_id', true)\n  )",
           "withCheck": "exists (\n    select 1\n    from \"wallets\"\n    where \"wallets\".\"id\" = \"recurrent_transactions\".\"wallet_id\"\n      and \"wallets\".\"user_id\" = current_setting('app.current_user_id', true)\n  )"
         }
@@ -712,12 +678,8 @@
           "name": "transaction_models_category_id_categories_id_fk",
           "tableFrom": "transaction_models",
           "tableTo": "categories",
-          "columnsFrom": [
-            "category_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["category_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -725,12 +687,8 @@
           "name": "transaction_models_wallet_id_wallets_id_fk",
           "tableFrom": "transaction_models",
           "tableTo": "wallets",
-          "columnsFrom": [
-            "wallet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["wallet_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -742,9 +700,7 @@
           "name": "transaction_models_owned_wallet_all",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "exists (\n    select 1\n    from \"wallets\"\n    where \"wallets\".\"id\" = \"transaction_models\".\"wallet_id\"\n      and \"wallets\".\"user_id\" = current_setting('app.current_user_id', true)\n  )",
           "withCheck": "exists (\n    select 1\n    from \"wallets\"\n    where \"wallets\".\"id\" = \"transaction_models\".\"wallet_id\"\n      and \"wallets\".\"user_id\" = current_setting('app.current_user_id', true)\n  )"
         }
@@ -848,12 +804,8 @@
           "name": "transactions_category_id_categories_id_fk",
           "tableFrom": "transactions",
           "tableTo": "categories",
-          "columnsFrom": [
-            "category_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["category_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -861,12 +813,8 @@
           "name": "transactions_wallet_id_wallets_id_fk",
           "tableFrom": "transactions",
           "tableTo": "wallets",
-          "columnsFrom": [
-            "wallet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["wallet_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -874,12 +822,8 @@
           "name": "transactions_created_from_model_id_transaction_models_id_fk",
           "tableFrom": "transactions",
           "tableTo": "transaction_models",
-          "columnsFrom": [
-            "created_from_model_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_from_model_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -891,9 +835,7 @@
           "name": "transactions_owned_wallet_all",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "exists (\n    select 1\n    from \"wallets\"\n    where \"wallets\".\"id\" = \"transactions\".\"wallet_id\"\n      and \"wallets\".\"user_id\" = current_setting('app.current_user_id', true)\n  )",
           "withCheck": "exists (\n    select 1\n    from \"wallets\"\n    where \"wallets\".\"id\" = \"transactions\".\"wallet_id\"\n      and \"wallets\".\"user_id\" = current_setting('app.current_user_id', true)\n  )"
         }
@@ -996,12 +938,8 @@
           "name": "transfer_models_from_wallet_id_wallets_id_fk",
           "tableFrom": "transfer_models",
           "tableTo": "wallets",
-          "columnsFrom": [
-            "from_wallet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["from_wallet_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -1009,12 +947,8 @@
           "name": "transfer_models_to_wallet_id_wallets_id_fk",
           "tableFrom": "transfer_models",
           "tableTo": "wallets",
-          "columnsFrom": [
-            "to_wallet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["to_wallet_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -1026,9 +960,7 @@
           "name": "transfer_models_owned_wallets_all",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "exists (\n    select 1\n    from \"wallets\"\n    where \"wallets\".\"id\" = \"transfer_models\".\"from_wallet_id\"\n      and \"wallets\".\"user_id\" = current_setting('app.current_user_id', true)\n  ) and exists (\n    select 1\n    from \"wallets\"\n    where \"wallets\".\"id\" = \"transfer_models\".\"to_wallet_id\"\n      and \"wallets\".\"user_id\" = current_setting('app.current_user_id', true)\n  )",
           "withCheck": "exists (\n    select 1\n    from \"wallets\"\n    where \"wallets\".\"id\" = \"transfer_models\".\"from_wallet_id\"\n      and \"wallets\".\"user_id\" = current_setting('app.current_user_id', true)\n  ) and exists (\n    select 1\n    from \"wallets\"\n    where \"wallets\".\"id\" = \"transfer_models\".\"to_wallet_id\"\n      and \"wallets\".\"user_id\" = current_setting('app.current_user_id', true)\n  )"
         }
@@ -1126,12 +1058,8 @@
           "name": "transfers_from_wallet_id_wallets_id_fk",
           "tableFrom": "transfers",
           "tableTo": "wallets",
-          "columnsFrom": [
-            "from_wallet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["from_wallet_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -1139,12 +1067,8 @@
           "name": "transfers_to_wallet_id_wallets_id_fk",
           "tableFrom": "transfers",
           "tableTo": "wallets",
-          "columnsFrom": [
-            "to_wallet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["to_wallet_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -1152,12 +1076,8 @@
           "name": "transfers_created_from_model_id_transfer_models_id_fk",
           "tableFrom": "transfers",
           "tableTo": "transfer_models",
-          "columnsFrom": [
-            "created_from_model_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_from_model_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -1169,9 +1089,7 @@
           "name": "transfers_owned_wallets_all",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "exists (\n    select 1\n    from \"wallets\"\n    where \"wallets\".\"id\" = \"transfers\".\"from_wallet_id\"\n      and \"wallets\".\"user_id\" = current_setting('app.current_user_id', true)\n  ) and exists (\n    select 1\n    from \"wallets\"\n    where \"wallets\".\"id\" = \"transfers\".\"to_wallet_id\"\n      and \"wallets\".\"user_id\" = current_setting('app.current_user_id', true)\n  )",
           "withCheck": "exists (\n    select 1\n    from \"wallets\"\n    where \"wallets\".\"id\" = \"transfers\".\"from_wallet_id\"\n      and \"wallets\".\"user_id\" = current_setting('app.current_user_id', true)\n  ) and exists (\n    select 1\n    from \"wallets\"\n    where \"wallets\".\"id\" = \"transfers\".\"to_wallet_id\"\n      and \"wallets\".\"user_id\" = current_setting('app.current_user_id', true)\n  )"
         }
@@ -1266,9 +1184,7 @@
           "name": "users_current_user_all",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "\"users\".\"id\" = current_setting('app.current_user_id', true)",
           "withCheck": "\"users\".\"id\" = current_setting('app.current_user_id', true)"
         }
@@ -1360,12 +1276,8 @@
           "name": "wallets_user_id_users_id_fk",
           "tableFrom": "wallets",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -1373,12 +1285,8 @@
           "name": "wallets_currency_id_currencies_id_fk",
           "tableFrom": "wallets",
           "tableTo": "currencies",
-          "columnsFrom": [
-            "currency_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["currency_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -1390,9 +1298,7 @@
           "name": "wallets_current_user_all",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "\"wallets\".\"user_id\" = current_setting('app.current_user_id', true)",
           "withCheck": "\"wallets\".\"user_id\" = current_setting('app.current_user_id', true)"
         }
@@ -1425,11 +1331,7 @@
     "public.category_type": {
       "name": "category_type",
       "schema": "public",
-      "values": [
-        "income",
-        "expense",
-        "system"
-      ]
+      "values": ["income", "expense", "system"]
     }
   },
   "schemas": {},
